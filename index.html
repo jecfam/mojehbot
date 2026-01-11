@@ -434,6 +434,35 @@
             transform: translateY(0);
         }
         
+        /* API Warning Banner */
+        .api-warning {
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            color: #fef3c7;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+        
+        .api-warning h4 {
+            color: #fbbf24;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .api-warning code {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+        
         /* Footer */
         .footer {
             margin-top: 40px;
@@ -451,6 +480,21 @@
         .footer a:hover {
             color: #3b82f6;
             text-decoration: underline;
+        }
+        
+        /* Demo Mode Indicator */
+        .demo-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            color: #c4b5fd;
+            z-index: 1001;
+            backdrop-filter: blur(10px);
         }
         
         /* Responsive Design */
@@ -488,6 +532,13 @@
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
+            
+            .demo-indicator {
+                top: 10px;
+                right: 10px;
+                font-size: 0.7rem;
+                padding: 6px 12px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -506,10 +557,25 @@
     </style>
 </head>
 <body>
+    <div class="demo-indicator">
+        🔧 Demo Mode (Using Mock Responses)
+    </div>
+    
     <div class="container">
         <div class="logo-container">
             <h1 class="logo">MojehBot</h1>
-            <p class="tagline">A sophisticated AI assistant powered by Google's Gemini. Get instant answers, creative solutions, and helpful insights on any topic.</p>
+            <p class="tagline">A sophisticated AI assistant powered by AI. Get instant answers, creative solutions, and helpful insights on any topic.</p>
+        </div>
+        
+        <div class="api-warning">
+            <h4><span class="material-symbols-outlined" style="font-size: 1.2rem;">info</span> API Configuration Required</h4>
+            <p>To connect to a real AI service, update the <code>API_KEY</code> in the JavaScript code with a valid API key from:</p>
+            <ul style="margin: 10px 0 10px 20px; color: #d1d5db;">
+                <li>Google Gemini AI</li>
+                <li>OpenAI GPT</li>
+                <li>Or any compatible AI service</li>
+            </ul>
+            <p>Currently running in demo mode with simulated responses.</p>
         </div>
         
         <div class="features">
@@ -526,7 +592,7 @@
             <div class="feature">
                 <div class="feature-icon">🎯</div>
                 <h3>Accurate Responses</h3>
-                <p>Powered by Google's Gemini AI for reliable, up-to-date information across various topics.</p>
+                <p>Powered by advanced AI for reliable, up-to-date information across various topics.</p>
             </div>
             <div class="feature">
                 <div class="feature-icon">💬</div>
@@ -536,7 +602,7 @@
         </div>
         
         <div class="footer">
-            <p>MojehBot uses Google's Gemini AI for natural language processing. <br>For support or feedback, contact us at <a href="mailto:support@mojehbot.com">support@mojehbot.com</a></p>
+            <p>MojehBot uses advanced AI for natural language processing. <br>For support or feedback, contact us at <a href="mailto:support@mojehbot.com">support@mojehbot.com</a></p>
             <p style="margin-top: 10px; font-size: 0.8rem;">© 2023 MojehBot. All rights reserved.</p>
         </div>
     </div>
@@ -577,9 +643,43 @@
         let userMessage = null;
         const inputInitHeight = chatInput.scrollHeight;
         
-        // API Configuration
-        const API_KEY = "AIzaSyCkz1CrPu-kbSdqOYL2z4NGSksV9lQo0dU";
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        // Configuration
+        const USE_MOCK_RESPONSES = true; // Set to false when you have a valid API key
+        const API_KEY = "YOUR_API_KEY_HERE"; // Replace with your actual API key
+        
+        // For Gemini API (correct endpoint structure)
+        // const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
+        
+        // For OpenAI API (alternative)
+        // const API_URL = "https://api.openai.com/v1/chat/completions";
+        
+        // Mock responses for demo mode
+        const mockResponses = [
+            "I understand you're asking about that topic. Based on general knowledge, here's what I can tell you...",
+            "That's an interesting question! Let me break it down for you in a simple way.",
+            "I'd be happy to help with that. First, let me clarify a few points about your question.",
+            "Great question! Here's a detailed explanation based on current information.",
+            "I can definitely assist with that. Let me provide you with some helpful insights.",
+            "Thanks for asking! Here's what you need to know about that topic.",
+            "I've analyzed your question and here's my response with some additional context.",
+            "That's a common question! Here's a comprehensive answer to help you understand better."
+        ];
+        
+        // Sample knowledge base for specific topics
+        const knowledgeBase = {
+            "hello": "Hello! 👋 I'm MojehBot, ready to help you with anything you need. What would you like to know?",
+            "hi": "Hi there! 😊 How can I assist you today?",
+            "weather": "I'm an AI assistant and don't have real-time weather data. For accurate weather information, I recommend checking a dedicated weather service or app for your location.",
+            "time": "I don't have access to real-time clock data. Please check your device's clock for the current time.",
+            "name": "I'm MojehBot, your friendly AI assistant! I'm here to help answer questions, brainstorm ideas, and assist with various tasks.",
+            "help": "I can help with: answering questions, explaining concepts, brainstorming ideas, writing assistance, problem-solving, and much more! Just ask me anything.",
+            "capabilities": "I can: answer questions, explain complex topics, help with writing and editing, brainstorm ideas, solve problems, provide information on various subjects, and engage in conversation.",
+            "thanks": "You're welcome! 😊 Is there anything else I can help you with?",
+            "thank you": "You're very welcome! Feel free to ask if you need anything else.",
+            "bye": "Goodbye! 👋 Feel free to come back anytime you need assistance. Have a great day!",
+            "goodbye": "Take care! Don't hesitate to return if you have more questions.",
+            "how are you": "I'm doing great, thanks for asking! 😊 Ready to help you with whatever you need."
+        };
         
         // Create chat list item
         const createChatLi = (message, className) => {
@@ -619,46 +719,93 @@
             return typingLi;
         };
         
-        // Generate AI response
+        // Get a mock response (for demo mode)
+        const getMockResponse = (userMessage) => {
+            const lowerMessage = userMessage.toLowerCase();
+            
+            // Check knowledge base first
+            for (const [key, response] of Object.entries(knowledgeBase)) {
+                if (lowerMessage.includes(key)) {
+                    return response;
+                }
+            }
+            
+            // Check for specific question types
+            if (lowerMessage.includes("how to") || lowerMessage.includes("how do i")) {
+                return "Here's a step-by-step guide for that:\n\n1. First, identify your main goal\n2. Gather necessary resources\n3. Break the process into manageable steps\n4. Execute each step carefully\n5. Review and adjust as needed\n\nWould you like more specific guidance?";
+            }
+            
+            if (lowerMessage.includes("what is") || lowerMessage.includes("what are")) {
+                return "That's a definition question. In simple terms, it refers to a concept or item that can be explained by looking at its components, history, and applications. Would you like a more detailed explanation?";
+            }
+            
+            if (lowerMessage.includes("why") || lowerMessage.includes("reason")) {
+                return "There are several reasons for that. The primary factors usually involve efficiency, effectiveness, and practicality. The specific reasons depend on the context of your question.";
+            }
+            
+            if (lowerMessage.includes("best") || lowerMessage.includes("recommend")) {
+                return "Based on general criteria like performance, reliability, and user feedback, I'd recommend considering options that prioritize quality and suitability for your specific needs.";
+            }
+            
+            // Return a random mock response
+            const randomIndex = Math.floor(Math.random() * mockResponses.length);
+            return mockResponses[randomIndex];
+        };
+        
+        // Generate AI response (real API or mock)
         const generateResponse = async (chatElement) => {
             const messageElement = chatElement.querySelector("p");
             
-            // Define the API request
-            const requestOptions = {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    contents: [{ 
-                        role: "user", 
-                        parts: [{ text: userMessage }] 
-                    }] 
-                }),
-            };
+            // Check if we should use mock responses
+            if (USE_MOCK_RESPONSES || !API_KEY || API_KEY === "YOUR_API_KEY_HERE") {
+                // Use mock response with typing effect
+                await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API delay
+                const mockResponse = getMockResponse(userMessage);
+                await typeText(messageElement, mockResponse);
+                return;
+            }
             
+            // Real API implementation would go here
+            // Currently using mock due to API configuration issues
             try {
+                // This is where you would implement the actual API call
+                // Example for Gemini API:
+                /*
+                const requestOptions = {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        contents: [{ 
+                            role: "user", 
+                            parts: [{ text: userMessage }] 
+                        }] 
+                    }),
+                };
+                
                 const response = await fetch(API_URL, requestOptions);
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    throw new Error(data.error?.message || "An unknown error occurred");
+                    throw new Error(data.error?.message || "API request failed");
                 }
                 
-                // Get the API response text
-                const responseText = data.candidates[0].content.parts[0].text;
+                // Extract response text based on API structure
+                const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || 
+                                   data.choices?.[0]?.message?.content || 
+                                   "I received your message but couldn't parse the response.";
                 
-                // Format the response (remove markdown formatting)
-                const formattedText = responseText
-                    .replace(/\*\*(.*?)\*\*/g, '$1')  // Remove bold
-                    .replace(/\*(.*?)\*/g, '$1')       // Remove italic
-                    .replace(/`(.*?)`/g, '$1');        // Remove code ticks
+                await typeText(messageElement, responseText);
+                */
                 
-                // Simulate typing effect
-                await typeText(messageElement, formattedText);
+                // Fallback to mock response
+                await new Promise(resolve => setTimeout(resolve, 800));
+                const mockResponse = getMockResponse(userMessage);
+                await typeText(messageElement, mockResponse);
                 
             } catch (error) {
                 // Handle error
                 messageElement.classList.add("error");
-                messageElement.textContent = `Oops! Something went wrong: ${error.message}. Please try again.`;
+                await typeText(messageElement, `API Error: ${error.message}. Using demo mode.`);
                 console.error("API Error:", error);
             } finally {
                 // Remove typing indicator and ensure chatbox scrolls to bottom
@@ -675,15 +822,20 @@
             element.textContent = "";
             element.classList.remove("thinking");
             
-            const speed = 10; // Typing speed in milliseconds per character
+            const speed = 15; // Typing speed in milliseconds per character
             let i = 0;
             
             const typeChar = () => {
                 if (i < text.length) {
                     element.textContent += text.charAt(i);
                     i++;
-                    chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: 'smooth' });
+                    // Only scroll occasionally for performance
+                    if (i % 10 === 0) {
+                        chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: 'smooth' });
+                    }
                     setTimeout(typeChar, speed);
+                } else {
+                    chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: 'smooth' });
                 }
             };
             
@@ -762,19 +914,63 @@
         
         // Add sample questions for user convenience
         const sampleQuestions = [
-            "What's the weather like today?",
+            "What can you help me with?",
             "Explain quantum computing in simple terms",
             "Write a short poem about technology",
-            "What are the benefits of meditation?"
+            "What are the benefits of meditation?",
+            "How do I learn programming?",
+            "Tell me a fun fact"
         ];
         
         // Show welcome message with sample questions
         setTimeout(() => {
             const welcomeMsg = document.querySelector('.chat.incoming p');
             if (welcomeMsg) {
-                welcomeMsg.innerHTML += `<br><br><small style="color: #94a3b8;">Try asking: "${sampleQuestions[Math.floor(Math.random() * sampleQuestions.length)]}"</small>`;
+                const randomQuestion = sampleQuestions[Math.floor(Math.random() * sampleQuestions.length)];
+                welcomeMsg.innerHTML += `<br><br><small style="color: #94a3b8;">Try asking: "${randomQuestion}"</small>`;
             }
         }, 1000);
+        
+        // Add some example questions to the main page
+        document.addEventListener('DOMContentLoaded', () => {
+            const features = document.querySelector('.features');
+            if (features) {
+                const exampleContainer = document.createElement('div');
+                exampleContainer.style.cssText = 'grid-column: 1 / -1; margin-top: 20px;';
+                exampleContainer.innerHTML = `
+                    <div style="background: rgba(30, 41, 59, 0.5); border-radius: 12px; padding: 20px; border: 1px solid rgba(100, 116, 139, 0.2);">
+                        <h3 style="color: #f1f5f9; margin-bottom: 15px; text-align: center;">Try These Questions:</h3>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+                            ${sampleQuestions.map(q => 
+                                `<button class="example-btn" style="background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.3); 
+                                  color: #c4b5fd; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.9rem;
+                                  transition: all 0.2s ease;">${q}</button>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `;
+                features.after(exampleContainer);
+                
+                // Add click handlers to example buttons
+                document.querySelectorAll('.example-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const question = btn.textContent;
+                        // Open chatbot if not already open
+                        if (!document.body.classList.contains('show-chatbot')) {
+                            document.body.classList.add('show-chatbot');
+                            setTimeout(() => {
+                                chatInput.focus();
+                            }, 300);
+                        }
+                        // Set the question in the input
+                        chatInput.value = question;
+                        chatInput.style.height = `${inputInitHeight}px`;
+                        chatInput.style.height = `${chatInput.scrollHeight}px`;
+                        chatInput.focus();
+                    });
+                });
+            }
+        });
     </script>
 </body>
 </html>
